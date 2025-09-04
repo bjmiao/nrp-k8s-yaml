@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vae-motion-th-rl1e-5-epoch100
+  namespace: aoi-lab-scratch
+spec:
+  containers:
+  - name: container
+    image: gitlab-registry.nrp-nautilus.io/nrp/scientific-images/python
+    resources:
+      limits:
+        nvidia.com/gpu: "1"
+        memory: "12Gi"
+        cpu: "2"
+      requests:
+        memory: "12Gi"
+        cpu: "2"
+    volumeMounts:
+    - mountPath: /volume
+      name: benjie-p001
+    command: ["/opt/conda/bin/python"]
+    args: ["/volume/code/MMVAE_playground/train.py",
+      "--lr", "0.00001", "--max_epochs","200","--n_dim_hidden","64","--n_dim_latent","10","--batch_size","32",
+      "--data_path", "/volume/mydata/video_analysis", "--save_path", "/volume/code/MMVAE_playground/results",
+      "--session_name", "exp2_norelu_th_rl1e_5",
+      "--read_sessions", "22R_D1_SFO_MidBrain_g0_imec0_data", "22R_D1_SFO_MidBrain_g0_imec1_data",
+      "--region1", "spike_matrix_th.npy", "--region2", "video_motSVD.npy"]
+  volumes:
+    - name: benjie-p001
+      persistentVolumeClaim:
+        claimName: benjie-p001
+  restartPolicy: Never

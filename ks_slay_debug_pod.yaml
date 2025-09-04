@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ks-slay-debug
+  namespace: aoi-lab-scratch
+spec:
+  containers:
+  - name: container
+    image: gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/prp
+    command: ["/bin/bash"]
+    args: ["-c", "/opt/conda/bin/python -m pip install kilosort git+https://github.com/saikoukunt/SLAy.git && sleep infinity"]
+    resources:
+      limits:
+        nvidia.com/gpu: "1"
+        memory: "32Gi"
+        cpu: "4"
+      requests:
+        memory: "32Gi"
+        cpu: "4"
+    volumeMounts:
+    - mountPath: /volume
+      name: ks-slay-p1
+  volumes:
+    - name: ks-slay-p1
+      persistentVolumeClaim:
+        claimName: ks-slay-p1

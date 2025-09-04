@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: train-vae-job-$NLATENTS
+  namespace: aoi-lab-scratch
+
+spec:
+  template:
+    spec:
+      containers:
+      - name: container
+        image: gitlab-registry.nrp-nautilus.io/nrp/scientific-images/python
+        command: ["/opt/conda/bin/python"]
+        args: ["/volume/code/MMVAE_playground/train.py",
+          "--lr", "0.001", "--max_epochs","300","--n_dim_hidden","64","--n_dim_latent","$NLATENTS","--batch_size","32", "--train_set_ratio", "0.9",
+           "--session_name", "linear_h64_l$NLATENTS_e300_cv_poi", "--data_path", "/volume/mydata/SSA", "--save_path", "/volume/code/MMVAE_playground/results",
+          "--read_sessions", "22R_D1_SFO_MidBrain_g0_imec0_data", "22R_D1_SFO_MidBrain_g0_imec1_data",
+          "--region1", "ACA", "--region2", "DORpm"]
+        resources:
+            limits:
+              nvidia.com/gpu: "1"
+              memory: "12Gi"
+              cpu: "2"
+            requests:
+              memory: "12Gi"
+              cpu: "2"
+        volumeMounts:
+        - mountPath: /volume
+          name: benjie-p001
+      volumes:
+          - name: benjie-p001
+            persistentVolumeClaim:
+              claimName: benjie-p001
+      restartPolicy: OnFailure
+          
