@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vae-1000-$(REGION)-$(NLATENTS)-$(LR)-$(NHIDDEN)-$(BATCH_SIZE)
+  namespace: aoi-lab-scratch
+spec:
+  template:
+    spec:
+      containers:
+      - name: container
+        image: gitlab-registry.nrp-nautilus.io/nrp/scientific-images/python
+        command: ["/opt/conda/bin/python"]
+        args: ["/volume/code/MMVAE_playground/train.py",
+          '--lr', '$(LR)', '--max_epochs', '1000',
+          '--n_dim_hidden', '$(NHIDDEN)', '--n_dim_latent', '$(NLATENTS)',
+          '--batch_size', '$(BATCH_SIZE)',
+          '--data_path', '/volume/mydata/video_analysis',
+          '--train_set_ratio', '0.9',
+          '--save_path', '/volume/code/MMVAE_playground/results/region_motion',
+          '--session_name', '$(REGION)_onlyneuron_1000epoch_rl$(LR)_n$(NHIDDEN)_l$(NLATENTS)_bs$(BATCH_SIZE)_std',
+          '--read_sessions','22R_D1_SFO_MidBrain_g0_imec0_data', '22R_D1_SFO_MidBrain_g0_imec1_data',
+          '--region1', 'spike_matrix_$(REGION).npy', '--region2', 'video_motSVD.npy', '--transform', 'std',
+          '--a_neuron', '1', '--a_motion', '1']
+        resources:
+            limits:
+              nvidia.com/gpu: "1"
+              memory: "12Gi"
+              cpu: "2"
+            requests:
+              memory: "12Gi"
+              cpu: "2"
+        volumeMounts:
+        - mountPath: /volume
+          name: benjie-p001
+      volumes:
+          - name: benjie-p001
+            persistentVolumeClaim:
+              claimName: benjie-p001
+      restartPolicy: OnFailure
+          
