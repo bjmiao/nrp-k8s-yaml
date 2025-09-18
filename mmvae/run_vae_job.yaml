@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: train-vae-job-22r-dorpm-mbmot
+  name: train-vae-job-bothmod
   namespace: aoi-lab-scratch
 
 spec:
@@ -12,10 +12,16 @@ spec:
         image: gitlab-registry.nrp-nautilus.io/nrp/scientific-images/python
         command: ["/opt/conda/bin/python"]
         args: ["/volume/code/MMVAE_playground/train.py",
-          "--lr", "0.0005", "--max_epochs","1000","--n_dim_hidden","64","--n_dim_latent","24","--batch_size","32", "--train_set_ratio", "0.9",
-          "--session_name", "linear_h64_l24_e1000_cv_poi_22R_DORpm_MBmot", "--data_path", "/volume/mydata/SSA", "--save_path", "/volume/code/MMVAE_playground/results",
-          "--read_sessions", "22R_D2_SFO_MidBrain_g0_imec0_data", "22R_D2_SFO_MidBrain_g0_imec1_data",
-          "--region1", "DORpm", "--region2", "MBmot"]
+          '--lr', '1e-4', '--max_epochs', '1000',
+          '--n_dim_hidden', '128', '--n_dim_latent', '32',
+          '--batch_size', '32',
+          '--data_path', '/volume/mydata/video_analysis',
+          '--train_set_ratio', '0.9',
+          '--save_path', '/volume/code/MMVAE_playground/results/02-orthogonality-0910/',
+          '--session_name', 'aorth100_both_lr1e_5_n128_l32_e1000',
+          '--read_sessions','22R_D1_SFO_MidBrain_g0_imec0_data', '22R_D1_SFO_MidBrain_g0_imec1_data',
+          '--region1', 'spike_matrix_th.npy', '--region2', 'video_motSVD.npy', '--transform', 'std',
+          '--a_neuron', '1', '--a_motion', '1', '--a_orthogonality', '100']
         resources:
             limits:
               nvidia.com/gpu: "1"
